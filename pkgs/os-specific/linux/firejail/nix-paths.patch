@@ -1,0 +1,41 @@
+diff --git a/src/fbuilder/build_bin.c b/src/fbuilder/build_bin.c
+index 041c5262..02d4646c 100644
+--- a/src/fbuilder/build_bin.c
++++ b/src/fbuilder/build_bin.c
+@@ -74,6 +74,10 @@ static void process_bin(const char *fname) {
+ 			ptr += 11;
+ 		else if (strncmp(ptr, "/usr/local/games/", 17) == 0)
+ 			ptr += 17;
++		else if (strncmp(ptr, "/run/wrappers/bin/", 18) == 0)
++			ptr += 18;
++		else if (strncmp(ptr, "/run/current-system/sw/bin/", 27) == 0)
++			ptr += 27;
+ 		else
+ 			continue;
+ 
+diff --git a/src/firejail/fs_bin.c b/src/firejail/fs_bin.c
+index 2b0b3003..21ff4ea6 100644
+--- a/src/firejail/fs_bin.c
++++ b/src/firejail/fs_bin.c
+@@ -28,6 +28,8 @@
+ static int prog_cnt = 0;
+ 
+ static char *paths[] = {
++	"/run/wrappers/bin",
++	"/run/current-system/sw/bin",
+ 	"/usr/local/bin",
+ 	"/usr/bin",
+ 	"/bin",
+diff --git a/src/lib/ldd_utils.c b/src/lib/ldd_utils.c
+index bc4f7cf9..2d9ea8c1 100644
+--- a/src/lib/ldd_utils.c
++++ b/src/lib/ldd_utils.c
+@@ -25,6 +25,8 @@
+ 
+ // todo: resolve overlap with masked_lib_dirs[] array from fs_lib.c
+ const char * const default_lib_paths[] = {
++	"__nix_libc_lib_path__",
++	"__nix_libapparmor_lib_path__",
+ 	"/usr/lib/x86_64-linux-gnu",	// Debian & friends
+ 	"/lib/x86_64-linux-gnu",		// CentOS, Fedora
+ 	"/usr/lib64",

@@ -5,7 +5,7 @@
  
  	char *cmdlist[] = {
 -	  BINDIR "/firejail",
-+	  "firejail",
++	  "/run/wrappers/bin/firejail",
  	  "--quiet",
  	  "--noprofile",
  	  "--caps.drop=all",

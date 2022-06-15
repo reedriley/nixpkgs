@@ -1,12 +1,12 @@
-{
-  lib,
-  stdenv,
-  fetchFromGitHub,
-  pkg-config,
-  libapparmor,
-  which,
-  xdg-dbus-proxy,
-  nixosTests,
+{ lib
+, stdenv
+, fetchFromGitHub
+, pkg-config
+, glibc
+, libapparmor
+, which
+, xdg-dbus-proxy
+, nixosTests
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -25,6 +25,7 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   buildInputs = [
+    glibc
     libapparmor
     which
   ];
@@ -37,6 +38,9 @@ stdenv.mkDerivation (finalAttrs: {
     # By default fbuilder hardcodes the firejail binary to the install path.
     # On NixOS the firejail binary is a setuid wrapper available in $PATH.
     ./fbuilder-call-firejail-on-path.patch
+
+    # Firejail hardcodes some paths that need to be adjusted on NixOS
+    ./nix-paths.patch
   ];
 
   prePatch = ''
@@ -53,7 +57,11 @@ stdenv.mkDerivation (finalAttrs: {
 
   preConfigure = ''
     sed -e 's@/bin/bash@${stdenv.shell}@g' -i $( grep -lr /bin/bash .)
+    sed -e 's@/bin/sh@${stdenv.shell}@g' -i $( grep -lr /bin/sh .)
+    sed -e "s@/bin/cat@$(which cat)@g" -i $( grep -lr /bin/cat .)
     sed -e "s@/bin/cp@$(which cp)@g" -i $( grep -lr /bin/cp .)
+    sed -e "s@/bin/rm@$(which rm)@g" -i $( grep -lr /bin/rm .)
+    sed -e "s@/bin/ls@$(which ls)@g" -i $( grep -lr /bin/ls .)
   '';
 
   preBuild = ''

@@ -1,0 +1,66 @@
+--- a/etc/apparmor/firejail-default
++++ b/etc/apparmor/firejail-default
+@@ -91,11 +91,13 @@ owner /proc/@{PID}/clear_refs w,
+ # to run programs from your home directory, add "/{,run/firejail/mnt/oroot/}home/** ix,"
+ # or similar to /etc/apparmor.d/local/firejail-default (without the quotes).
+ ##########
+-/{,run/firejail/mnt/oroot/}{,usr/,usr/local/}bin/** ix,
+-/{,run/firejail/mnt/oroot/}{,usr/,usr/local/}sbin/** ix,
+-/{,run/firejail/mnt/oroot/}{,usr/,usr/local/}games/** ix,
+-/{,run/firejail/mnt/oroot/}{,usr/,usr/local/}lib{,32,64,exec}/** ix,
+-/{,run/firejail/mnt/oroot/}{,usr/,usr/local/}opt/** ix,
++/{,run/firejail/mnt/oroot/}run/wrappers*/bin/** ix,
++/{,run/firejail/mnt/oroot/}{nix/store/*/,usr/,usr/local/}bin/** ix,
++/{,run/firejail/mnt/oroot/}{nix/store/*/,usr/,usr/local/}sbin/** ix,
++/{,run/firejail/mnt/oroot/}{nix/store/*/,usr/,usr/local/}games/** ix,
++/{,run/firejail/mnt/oroot/}{nix/store/*/,usr/,usr/local/}lib{,32,64,exec}/** ix,
++/{,run/firejail/mnt/oroot/}{nix/store/*/,usr/,usr/local/}share/** ix,
++/{,run/firejail/mnt/oroot/}{nix/store/*/,usr/,usr/local/}opt/** ix,
+ #/{,run/firejail/mnt/oroot/}home/** ix,
+ 
+ # Appimage support
+diff --git a/src/fbuilder/build_bin.c b/src/fbuilder/build_bin.c
+index 041c52629..a44e1903c 100644
+--- a/src/fbuilder/build_bin.c
++++ b/src/fbuilder/build_bin.c
+@@ -74,6 +74,12 @@ static void process_bin(const char *fname) {
+ 			ptr += 11;
+ 		else if (strncmp(ptr, "/usr/local/games/", 17) == 0)
+ 			ptr += 17;
++		else if (strncmp(ptr, "/run/wrappers/bin/", 18) == 0)
++			ptr += 18;
++		else if (strncmp(ptr, "/run/current-system/sw/bin/", 27) == 0)
++			ptr += 27;
++		else if (strncmp(ptr, "/run/current-system/sw/sbin/", 28) == 0)
++			ptr += 28;
+ 		else
+ 			continue;
+ 
+diff --git a/src/firejail/fs_bin.c b/src/firejail/fs_bin.c
+index 6228e9740..ae55cc4d6 100644
+--- a/src/firejail/fs_bin.c
++++ b/src/firejail/fs_bin.c
+@@ -28,6 +28,9 @@
+ static int prog_cnt = 0;
+ 
+ static const char * const paths[] = {
++	"/run/wrappers/bin",
++	"/run/current-system/sw/bin",
++	"/run/current-system/sw/sbin",
+ 	"/usr/local/bin",
+ 	"/usr/bin",
+ 	"/bin",
+diff --git a/src/lib/ldd_utils.c b/src/lib/ldd_utils.c
+index a50b759c3..a501eb7db 100644
+--- a/src/lib/ldd_utils.c
++++ b/src/lib/ldd_utils.c
+@@ -25,6 +25,9 @@
+ 
+ // todo: resolve overlap with masked_lib_dirs[] array from fs_lib.c
+ const char * const default_lib_paths[] = {
++	"__nix_libapparmor_lib_path__",
++	"__nix_libc_lib_path__",
++	"/run/current-system/sw/lib",	// NixOS
+ 	"/usr/lib/x86_64-linux-gnu",	// Debian & friends
+ 	"/lib/x86_64-linux-gnu",		// CentOS, Fedora
+ 	"/usr/lib64",

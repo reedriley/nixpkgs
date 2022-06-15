@@ -117,6 +117,18 @@ in
       source = "${lib.getBin pkgs.firejail}/bin/firejail";
     };
 
+    security.apparmor.includes = lib.mkIf config.security.apparmor.enable {
+      "abstractions/base.d/firejail-base" = ''
+        include "${pkgs.firejail}/etc/apparmor.d/abstractions/base.d/firejail-base"
+      '';
+      "local/firejail-default" = ''
+        include "${pkgs.firejail}/etc/apparmor.d/local/firejail-default"
+      '';
+    };
+    security.apparmor.policies."firejail-default".profile = lib.mkIf (config.security.apparmor.policies."firejail-default".state != "disable") ''
+      include "${pkgs.firejail}/etc/apparmor.d/firejail-default"
+    '';
+
     environment.systemPackages = [ pkgs.firejail ] ++ [ wrappedBins ];
   };
 

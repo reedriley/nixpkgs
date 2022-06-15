@@ -5,7 +5,7 @@
  	char *cmd[len];
  	unsigned curr_len = 0;
 -	cmd[curr_len++] = BINDIR "/firejail";
-+	cmd[curr_len++] = "firejail";
++	cmd[curr_len++] = "/run/wrappers/bin/firejail";
  	cmd[curr_len++] = "--quiet";
  	cmd[curr_len++] = "--noprofile";
  	cmd[curr_len++] = "--caps.drop=all";

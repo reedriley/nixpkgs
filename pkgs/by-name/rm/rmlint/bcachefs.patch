@@ -1,0 +1,14 @@
+bcachefs
+
+--- a/lib/utilities.c
++++ b/lib/utilities.c
+@@ -580,6 +580,9 @@ static RmMountEntry *rm_mount_list_next(RmMountEntries *self) {
+ }
+ 
+ static bool fs_supports_reflinks(char *fstype, char *mountpoint) {
++    if(strcmp(fstype, "bcachefs")==0) {
++        return true;
++    }
+     if(strcmp(fstype, "btrfs")==0) {
+         return true;
+     }

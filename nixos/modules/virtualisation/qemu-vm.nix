@@ -1383,6 +1383,8 @@ in
           file = ''"$NIX_DISK_IMAGE"'';
           driveExtraOpts.cache = "writeback";
           driveExtraOpts.werror = "report";
+          driveExtraOpts.discard = "unmap";
+          driveExtraOpts.detect-zeroes = "unmap";
           deviceExtraOpts.bootindex = "1";
           deviceExtraOpts.serial = rootDriveSerialAttr;
         }

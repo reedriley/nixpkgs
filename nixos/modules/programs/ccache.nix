@@ -64,6 +64,7 @@ in
             return '-C' if $v eq '-C' || $v eq '--clear';
             return '-V' if $v eq '-V' || $v eq '--version';
             return '-s' if $v eq '-s' || $v eq '--show-stats';
+            return '-v' if $v eq '-v' || $v eq '--verbose';
             return '-z' if $v eq '-z' || $v eq '--zero-stats';
             exec('${pkgs.ccache}/bin/ccache', '-h');
           }

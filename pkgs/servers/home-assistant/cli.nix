@@ -2,6 +2,7 @@
   lib,
   stdenv,
   fetchFromGitHub,
+  fetchpatch,
   python3,
   installShellFiles,
 }:
@@ -17,6 +18,18 @@ python3.pkgs.buildPythonApplication (finalAttrs: {
     tag = finalAttrs.version;
     hash = "sha256-LF6JXELAP3Mvta3RuDUs4UiQ7ptNFh0vZmPh3ICJFRY=";
   };
+
+  # asyncio.get_event_loop() raises RuntimeError on Python 3.14 (implicit loop
+  # creation removed), breaking every `hass-cli raw ws` call. Fixed upstream four
+  # days after the 1.0.0 tag; 1.0.1 exists in the tree but was never released.
+  # Drop this once a release carries it.
+  patches = [
+    (fetchpatch {
+      name = "replace-asyncio-get-event-loop.patch";
+      url = "https://github.com/home-assistant-ecosystem/home-assistant-cli/commit/184cc48b4b9e4c6df8817e05fa3258b3b52caa91.patch";
+      hash = "sha256-xGXfrvwP3+Wva0S7Sv9eRCt3n5PaKLQxmdHPYp1Ew8M=";
+    })
+  ];
 
   pythonRelaxDeps = true;
 

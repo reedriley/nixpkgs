@@ -4,7 +4,6 @@
   cairo,
   elfutils,
   fetchFromGitHub,
-  fetchpatch,
   glib,
   gobject-introspection,
   gtksourceview3,
@@ -24,24 +23,19 @@ assert withGui -> !stdenv.hostPlatform.isDarwin;
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "rmlint";
-  version = "2.10.2";
+  version = "2.10.3";
 
   src = fetchFromGitHub {
     owner = "sahib";
     repo = "rmlint";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-pOo1YfeqHUU6xyBRFbcj2lX1MHJ+a5Hi31BMC1nYZGo=";
+    hash = "sha256-Q5nonICxyWTAu1gHWaqWi1pq6yMD5mzMwnwQ8lOCY4A=";
   };
 
   patches = [
     # pass through NIX_* environment variables to scons.
     ./scons-nix-env.patch
     ./bcachefs.patch
-    # fixes https://github.com/sahib/rmlint/issues/664
-    (fetchpatch {
-      url = "https://github.com/sahib/rmlint/commit/f0ca57ec907f7199e3670038d60b4702d1e1d8e2.patch";
-      hash = "sha256-715X+R2BcQIaUV76hoO+EXPfNheOfw4OIHsqSoruIUI=";
-    })
   ];
 
   nativeBuildInputs = [
@@ -77,8 +71,6 @@ stdenv.mkDerivation (finalAttrs: {
     substituteInPlace lib/cmdline.c \
       --replace "__DATE__" "\"Jan  1 1970\"" \
       --replace "__TIME__" "\"00:00:00\""
-    substituteInPlace docs/SConscript \
-      --replace "gzip -c " "gzip -cn "
   '';
 
   # Otherwise tries to access /usr.

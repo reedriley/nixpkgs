@@ -76,6 +76,20 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   preCheck = ''
     export HOME=$(mktemp -d)
+    # The e2e tests start an interactive bash, which sources the host's
+    # /etc/bashrc when the build is not sandboxed (the darwin default).
+    # The nix-darwin config resets PATH, so if the user has atuin installed,
+    # the shell integration runs the system atuin instead of the one currently building
+    # and no output is captured.
+    export NOSYSBASHRC=1
+  '';
+
+  # The e2e harness spawns its shells with env_clear() and an allowlist
+  # (FreshEnv::env_vars), so NOSYSBASHRC from preCheck never reaches bash.
+  # Forward it alongside the locale variables the harness already passes.
+  postPatch = ''
+    substituteInPlace crates/atuin/tests/common/mod.rs \
+      --replace-fail 'for lang in ["LANG", "LC_ALL"]' 'for lang in ["LANG", "LC_ALL", "NOSYSBASHRC"]'
   '';
 
   __darwinAllowLocalNetworking = true;

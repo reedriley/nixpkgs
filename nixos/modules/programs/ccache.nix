@@ -65,7 +65,7 @@ in
 
             int main(int argc, char *argv[]) {
               regex_t allowed;
-              if (regcomp(&allowed, "^(-[CVsz]|--(clear|version|show-stats|zero-stats))$", REG_EXTENDED | REG_NOSUB))
+              if (regcomp(&allowed, "^(-[CVsvz]|--(clear|version|show-stats|verbose|zero-stats))$", REG_EXTENDED | REG_NOSUB))
                 err(1, "regcomp");
 
               // if any arg isn't on the allowlist, run `ccache` w/o args
